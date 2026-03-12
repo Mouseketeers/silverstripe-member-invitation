@@ -19,8 +19,6 @@ use Mouseketeers\SilverstripeMemberInvitation\MemberInvitationForm;
 use SilverStripe\Security\Group;
 
 
-
-
 class MemberInvitationController extends Controller implements PermissionProvider
 {
 

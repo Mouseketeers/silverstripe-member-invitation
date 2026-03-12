@@ -1,0 +1,8 @@
+---
+Name: member-invitation-subsites
+Only:
+  moduleexists: 'silverstripe/subsites'
+---
+Mouseketeers\SilverstripeMemberInvitation\MemberInvitation:
+  extensions:
+    - Mouseketeers\SilverstripeMemberInvitation\MemberInvitationSubsitesExtension
