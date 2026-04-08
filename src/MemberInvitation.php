@@ -223,9 +223,6 @@ class MemberInvitation extends DataObject
             HiddenField::create('TempHash', 'TempHash')
         );
         
-        $fields->replaceField('Accepted', 
-            HiddenField::create('Accepted', 'Accepted')
-        );
         $fields->replaceField('InvitedByID',
             HiddenField::create('InvitedByID', 'InvitedByID')
         );
