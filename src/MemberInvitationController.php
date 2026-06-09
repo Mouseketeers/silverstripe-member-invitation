@@ -77,7 +77,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
             return Security::permissionFailure();
         } else {
             return $this->renderWith(
-                ['MemberInvitation', SiteTree::class],
+                [__NAMESPACE__ . '\\MemberInvitation', SiteTree::class],
                 ['InvitationForm' => $this->InvitationForm()]
             );
         }
@@ -168,9 +168,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
         } else {
             return $this->redirect($this->Link('notfound'));
         }
-        return $this->renderWith(
-            ['MemberInvitation_accept', SiteTree::class]
-        );
+        return $this->renderWith([__NAMESPACE__ . '\\MemberInvitation_accept', 'Page']);
     }
     public function AcceptForm()
     {
@@ -217,30 +215,24 @@ class MemberInvitationController extends Controller implements PermissionProvide
     public function success()
     {
         $security = Injector::inst()->get(Security::class);
-        return $this->renderWith(
-            ['MemberInvitation_success', SiteTree::class],
-            ['LoginLink' => $security->Link('login')]
-        );
+        return $this->customise([
+            'LoginLink' => $security->Link('login')
+        ])->renderWith([__NAMESPACE__ . '\\MemberInvitation_success', 'Page']);
     }
     public function expired()
     {
-        return $this->renderWith(
-            ['MemberInvitation_expired', SiteTree::class]
-        );
+        return $this->renderWith([__NAMESPACE__ . '\\MemberInvitation_expired', 'Page']);
     }
     public function accepted()
     {
         $security = Injector::inst()->get(Security::class);
-        return $this->renderWith(
-            ['MemberInvitation_accepted', SiteTree::class],
-            ['LoginLink' => $security->Link('login')]
-        );
+        return $this->customise([
+            'LoginLink' => $security->Link('login')
+        ])->renderWith([__NAMESPACE__ . '\\MemberInvitation_accepted', 'Page']);
     }    
     public function notfound()
     {
-        return $this->renderWith(
-            ['MemberInvitation_notfound', SiteTree::class]
-        );
+        return $this->renderWith([__NAMESPACE__ . '\\MemberInvitation_notfound', 'Page']);
     }    
     private function forbiddenError()
     {
@@ -263,6 +255,6 @@ class MemberInvitationController extends Controller implements PermissionProvide
         return $controller;
     }    
     public function getTemplatesFor($action) {
-        return ["MemberInvitation_{$action}", MemberInvitation::class, SiteTree::class, 'BlankPage'];
+        return [__NAMESPACE__ . "\\MemberInvitation_{$action}", MemberInvitation::class, SiteTree::class, 'BlankPage'];
     }    
 }

@@ -275,7 +275,7 @@ class MemberInvitation extends DataObject
                 ->setFrom($this->getFromEmailAddress(), $this->getFromEmailName())
                 ->setTo($this->Email)
                 ->setSubject($this->EmailSubject)
-                ->setHTMLTemplate('Email\\MemberInvitationEmail')
+                ->setHTMLTemplate(__NAMESPACE__ . '\\Email\\MemberInvitationEmail')
                 ->setData(
                     ArrayData::create(
                         [
