@@ -7,12 +7,11 @@ use SilverStripe\Security\Member;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Security;
 use SilverStripe\SiteConfig\SiteConfig;
-use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Admin\SecurityAdmin;
 use SilverStripe\GraphQL\Controller;
-use SilverStripe\Forms\ListboxField;
 use SilverStripe\Forms\DropdownField;
+use SilverStripe\Forms\ListboxField;
 use SilverStripe\Control\Director;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\HiddenField;
@@ -22,8 +21,10 @@ use SilverStripe\Security\RandomGenerator;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Permission;
 use SilverStripe\Core\Injector\Injector;
+use SilverStripe\Core\Config\Config;
+use SilverStripe\View\SSViewer;
+use SilverStripe\Subsites\Model\Subsite;
 
-use SilverStripe\Forms\FormAction;
 
 class MemberInvitation extends DataObject 
 {
@@ -37,7 +38,6 @@ class MemberInvitation extends DataObject
         'Surname' => 'Varchar',
         'Email' => 'Varchar(254)',
         'FromEmail' => 'Varchar(254)',
-        'FromEmailName' => 'Varchar(254)',
         'EmailSubject' => 'Varchar(254)',
         'Message' => 'HTMLText',
         'Groups' => 'Text',
@@ -70,20 +70,15 @@ class MemberInvitation extends DataObject
         parent::populateDefaults();
 
         $defaultFromEmail = self::config()->get('default_from_email');
-        $this->FromEmail = ($defaultFromEmail) ? $defaultFromEmail :  Email::config()->get('admin_email');
-
-        $defaultFromEmailName = self::config()->get('default_from_email_name');
-        $this->FromEmailName = ($defaultFromEmailName) ? $defaultFromEmailName :  NULL;
+        $currentUser = Security::getCurrentUser();
+        $currentUserEmail = $currentUser ? $currentUser->Email : null;
+        $this->FromEmail = $defaultFromEmail ?: $currentUserEmail ?: Email::config()->get('admin_email');
 
         $defaultEmailSubject = self::config()->get('default_email_subject');
         $this->EmailSubject = ($defaultEmailSubject) ? $defaultEmailSubject : 'Invitation to join '.SiteConfig::current_site_config()->Title;
 
         $defaultMessage = self::config()->get('default_message');
         $this->Message = ($defaultMessage) ? $defaultMessage : 'You have been invited to join '.SiteConfig::current_site_config()->Title;
-
-        if(class_exists('Subsite')) {
-            $this->SubsiteID = Subsite::currentSubsiteID();
-        }
 
         if($defaultGroups = self::config()->get('default_groups')) {
             $this->Groups = $defaultGroups;
@@ -116,7 +111,7 @@ class MemberInvitation extends DataObject
                 'Groups'
             ]
         );
-        if(class_exists('Subsite')) {
+        if (class_exists(Subsite::class)) {
             $requiredFields->addRequiredField('SubsiteID');
         }
         return $requiredFields;
@@ -182,28 +177,24 @@ class MemberInvitation extends DataObject
                 ->setTitle('Add to groups')
         );
 
-        if(class_exists('Subsite')) {
-            $subsites = Subsite::all_sites();
-            $fields->insertAfter(
-                DropdownField::create(
-                    'SubsiteID', 
-                    'Site', 
-                    $subsites->map('ID', 'Title')
-                ),
-                'Groups'
+        // Hide by default; optional subsites extension can add a proper dropdown.
+        $fields->removeByName('SubsiteID');
+        if (class_exists(Subsite::class)) {
+            $subsiteField = DropdownField::create(
+                'SubsiteID',
+                'Site',
+                Subsite::all_sites()->map('ID', 'Title')
             );
-        }
-        else {
-            $fields->removeByName('SubsiteID');
+
+            if ($fields->dataFieldByName('Groups')) {
+                $fields->insertAfter($subsiteField, 'Groups');
+            } else {
+                $fields->addFieldToTab('Root.Main', $subsiteField);
+            }
         }
 
         if($this->TempHash) {
-            if($this->SubsiteID) {
-                $siteURL = $this->subsite()->getPrimarySubsiteDomain()->absoluteBaseURL();
-            }
-            else {
-               $siteURL = Director::absoluteBaseURL(); 
-            }
+            $siteURL = $this->getInvitationSiteURL();
             $fields->insertBefore(
                 ReadonlyField::create(
                     'AcceptLink',
@@ -232,9 +223,6 @@ class MemberInvitation extends DataObject
             HiddenField::create('TempHash', 'TempHash')
         );
         
-        $fields->replaceField('Accepted', 
-            HiddenField::create('Accepted', 'Accepted')
-        );
         $fields->replaceField('InvitedByID',
             HiddenField::create('InvitedByID', 'InvitedByID')
         );
@@ -245,6 +233,16 @@ class MemberInvitation extends DataObject
     public function validate() 
     {
         $valid = parent::validate();
+
+        // Validate FromEmail format
+        if ($this->FromEmail) {
+            $emailAddress = $this->getFromEmailAddress();
+            if (!filter_var($emailAddress, FILTER_VALIDATE_EMAIL)) {
+                $valid->addError(
+                    _t('MemberInvitation.INVALID_FROM_EMAIL', 'The From Email address is not valid. Use format "Name <email@domain.com>" or "email@domain.com".')
+                );
+            }
+        }
 
         if(!$this->ID) {
             if (Member::get()->filter('Email', $this->Email)->first()) {
@@ -263,33 +261,55 @@ class MemberInvitation extends DataObject
     }
     public function sendInvitation()
     {
-        if($subsiteID = $this->SubsiteID) {
-            $subsite = Subsite::get()->byID($subsiteID);
-            $siteURL = 'http://'.$subsite->getPrimarySubsiteDomain()->Domain.'/';
+        $originalThemeEnabled = (bool) Config::inst()->get(SSViewer::class, 'theme_enabled');
+        $originalThemes = SSViewer::get_themes() ?: [];
+
+        Config::modify()->set(SSViewer::class, 'theme_enabled', true);
+
+        try {
+            $this->extend('beforeSendInvitationEmail');
+
+            $siteURL = $this->getInvitationSiteURL();
+
+            $email = Email::create()
+                ->setFrom($this->getFromEmailAddress(), $this->getFromEmailName())
+                ->setTo($this->Email)
+                ->setSubject($this->EmailSubject)
+                ->setHTMLTemplate(__NAMESPACE__ . '\\Email\\MemberInvitationEmail')
+                ->setData(
+                    ArrayData::create(
+                        [
+                            'FirstName' => $this->FirstName,
+                            'Surname' => $this->Surname,
+                            'Message' => $this->dbObject('Message'),
+                            'SiteURL' => $siteURL,
+                            'DaysToExpiry' => MemberInvitation::config()->get('days_to_expiry'),
+                            'TempHash' => $this->TempHash
+                        ]
+                    )
+                );
+
+            return $email->send();
+        } finally {
+            SSViewer::set_themes($originalThemes);
+            Config::modify()->set(SSViewer::class, 'theme_enabled', $originalThemeEnabled);
         }
-        else {
-            $siteURL = Director::absoluteBaseURL();
-        }
-        
-        return Email::create()
-            ->setFrom($this->FromEmail, $this->FromEmailName)
-            ->setTo($this->Email)
-            ->setSubject($this->EmailSubject)
-            ->setHTMLTemplate('Email\\MemberInvitationEmail')
-            ->setData(
-                ArrayData::create(
-                    [
-                        'FirstName' => $this->FirstName,
-                        'Surname' => $this->Surname,
-                        'Message' => $this->Message,
-                        'SiteURL' => $siteURL,
-                        'DaysToExpiry' => MemberInvitation::config()->get('days_to_expiry'),
-                        'TempHash' => $this->TempHash
-                    ]
-                )
-            )
-            ->send();
     }
+
+    protected function getInvitationSiteURL()
+    {
+        $results = $this->extend('getInvitationSiteURL');
+        if ($results) {
+            foreach ($results as $result) {
+                if ($result) {
+                    return $result;
+                }
+            }
+        }
+
+        return Director::absoluteBaseURL();
+    }
+
     public function generateTempHash() {
         $generator = new RandomGenerator();
         return $generator->randomToken('sha1');
@@ -313,6 +333,70 @@ class MemberInvitation extends DataObject
     {
         return $this->Accepted;
     }
+
+    public function canEdit($member = null)
+    {
+        $member = $member ?: Security::getCurrentUser();
+        if (!$member) {
+            return false;
+        }
+
+        return Permission::checkMember($member, 'ACCESS_MEMBER_INVITATIONS')
+            || Permission::checkMember($member, 'CMS_ACCESS_SecurityAdmin')
+            || Permission::checkMember($member, 'ADMIN');
+    }
+
+    public function canView($member = null)
+    {
+        return $this->canEdit($member);
+    }
+
+    public function canDelete($member = null)
+    {
+        return $this->canEdit($member);
+    }
+
+    /**
+     * Parse the FromEmail field to extract just the email address
+     * Handles formats like "Name <email@domain.com>" or plain "email@domain.com"
+     */
+    public function getFromEmailAddress()
+    {
+        if (!$this->FromEmail) {
+            return null;
+        }
+
+        // Match email in angle brackets: "Name <email@domain.com>"
+        if (preg_match('/.*<([^>]+)>/', $this->FromEmail, $matches)) {
+            return trim($matches[1]);
+        }
+
+        // No angle brackets, assume it's just the email address
+        return trim($this->FromEmail);
+    }
+
+    /**
+     * Parse the FromEmail field to extract the display name
+     * Returns null if no name is provided (plain email format)
+     */
+    public function getFromEmailName()
+    {
+        if (!$this->FromEmail) {
+            return null;
+        }
+
+        // Match name before angle brackets: "Name <email@domain.com>"
+        if (preg_match('/^(.+)<[^>]+>$/', $this->FromEmail, $matches)) {
+            $name = trim($matches[1]);
+            // Remove surrounding quotes if present
+            $name = trim($name, '"\' ');
+            return $name ?: null;
+        }
+
+        // No angle brackets found, no separate name provided
+        return null;
+    }
+
     public function canCreate($member = null, $context = [])
     {
         return Permission::check('ACCESS_MEMBER_INVITATIONS');

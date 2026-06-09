@@ -3,7 +3,6 @@
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
 use SilverStripe\Forms\Form;
-use SilverStripe\Security\Member;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Security;
 use SilverStripe\Forms\FieldList;

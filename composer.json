@@ -17,6 +17,9 @@
         "silverstripe/vendor-plugin": "^1",
         "silverstripe/framework": "^4"
     },
+    "suggest": {
+        "silverstripe/subsites": "Optional: enables subsite-specific invitation behaviour"
+    },
     "minimum-stability": "stable",
     "autoload": {
         "psr-4": {
