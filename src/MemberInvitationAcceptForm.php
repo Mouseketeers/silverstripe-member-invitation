@@ -36,7 +36,10 @@ class MemberInvitationAcceptForm extends Form
 				_t('MemberInvitation.ACCEPTFORM_FIRSTNAME', 'Name'),
 				$firstName
 			),
-			ConfirmedPasswordField::create('Password'),
+			ConfirmedPasswordField::create(
+				'Password',
+				_t('MemberInvitation.CREATE_PASSWORD', 'Create Password')
+			),
 			HiddenField::create('HashID')->setValue($hash)
 		);
 		if($surname) {
