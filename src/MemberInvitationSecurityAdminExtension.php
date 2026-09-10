@@ -7,8 +7,6 @@ use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use Mouseketeers\SilverstripeMemberInvitation\MemberInvitationFieldDetailForm_ItemRequest;
 
-use SilverStripe\Forms\GridField\GridFieldPrintButton;
-
 
 class MemberInvitationSecurityAdminExtension extends Extension 
 {
