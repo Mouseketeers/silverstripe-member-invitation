@@ -67,12 +67,13 @@ class MemberInvitation extends DataObject
 
     public function populateDefaults()
     {
-        parent::populateDefaults();
 
         $defaultFromEmail = self::config()->get('default_from_email');
         $currentUser = Security::getCurrentUser();
         $currentUserEmail = $currentUser ? $currentUser->Email : null;
-        $this->FromEmail = $defaultFromEmail ?: $currentUserEmail ?: Email::config()->get('admin_email');
+        if (!$this->FromEmail) {
+            $this->FromEmail = $defaultFromEmail ?: $currentUserEmail ?: Email::config()->get('admin_email');
+        }
 
         $defaultEmailSubject = self::config()->get('default_email_subject');
         $this->EmailSubject = ($defaultEmailSubject) ? $defaultEmailSubject : 'Invitation to join '.SiteConfig::current_site_config()->Title;
@@ -83,6 +84,8 @@ class MemberInvitation extends DataObject
         if($defaultGroups = self::config()->get('default_groups')) {
             $this->Groups = $defaultGroups;
         }
+
+        parent::populateDefaults();
 
     }
     public function setEmailSubject($emailSubject)
@@ -356,46 +359,46 @@ class MemberInvitation extends DataObject
         return $this->canEdit($member);
     }
 
-    /**
-     * Parse the FromEmail field to extract just the email address
-     * Handles formats like "Name <email@domain.com>" or plain "email@domain.com"
-     */
-    public function getFromEmailAddress()
-    {
-        if (!$this->FromEmail) {
-            return null;
-        }
+    // /**
+    //  * Parse the FromEmail field to extract just the email address
+    //  * Handles formats like "Name <email@domain.com>" or plain "email@domain.com"
+    //  */
+    // public function getFromEmailAddress()
+    // {
+    //     if (!$this->FromEmail) {
+    //         return null;
+    //     }
 
-        // Match email in angle brackets: "Name <email@domain.com>"
-        if (preg_match('/.*<([^>]+)>/', $this->FromEmail, $matches)) {
-            return trim($matches[1]);
-        }
+    //     // Match email in angle brackets: "Name <email@domain.com>"
+    //     if (preg_match('/.*<([^>]+)>/', $this->FromEmail, $matches)) {
+    //         return trim($matches[1]);
+    //     }
 
-        // No angle brackets, assume it's just the email address
-        return trim($this->FromEmail);
-    }
+    //     // No angle brackets, assume it's just the email address
+    //     return trim($this->FromEmail);
+    // }
 
-    /**
-     * Parse the FromEmail field to extract the display name
-     * Returns null if no name is provided (plain email format)
-     */
-    public function getFromEmailName()
-    {
-        if (!$this->FromEmail) {
-            return null;
-        }
+    // /**
+    //  * Parse the FromEmail field to extract the display name
+    //  * Returns null if no name is provided (plain email format)
+    //  */
+    // public function getFromEmailName()
+    // {
+    //     if (!$this->FromEmail) {
+    //         return null;
+    //     }
 
-        // Match name before angle brackets: "Name <email@domain.com>"
-        if (preg_match('/^(.+)<[^>]+>$/', $this->FromEmail, $matches)) {
-            $name = trim($matches[1]);
-            // Remove surrounding quotes if present
-            $name = trim($name, '"\' ');
-            return $name ?: null;
-        }
+    //     // Match name before angle brackets: "Name <email@domain.com>"
+    //     if (preg_match('/^(.+)<[^>]+>$/', $this->FromEmail, $matches)) {
+    //         $name = trim($matches[1]);
+    //         // Remove surrounding quotes if present
+    //         $name = trim($name, '"\' ');
+    //         return $name ?: null;
+    //     }
 
-        // No angle brackets found, no separate name provided
-        return null;
-    }
+    //     // No angle brackets found, no separate name provided
+    //     return null;
+    // }
 
     public function canCreate($member = null, $context = [])
     {
