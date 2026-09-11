@@ -1,5 +1,5 @@
 {
-    "name": "mouseketeers/member-invitation",
+    "name": "mouseketeers/silverstripe-member-invitation",
     "description": "A SilverStripe module to handle user invitations in SilverStripe CMS",
     "type": "silverstripe-module",
     "keywords": [
