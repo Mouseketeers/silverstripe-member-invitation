@@ -278,7 +278,7 @@ class MemberInvitation extends DataObject
                 ->setFrom($this->getFromEmailAddress(), $this->getFromEmailName())
                 ->setTo($this->Email)
                 ->setSubject($this->EmailSubject)
-                ->setHTMLTemplate(__NAMESPACE__ . '\\Email\\MemberInvitationEmail')
+                ->setHTMLTemplate('Email/MemberInvitationEmail')
                 ->setData(
                     ArrayData::create(
                         [
@@ -359,46 +359,46 @@ class MemberInvitation extends DataObject
         return $this->canEdit($member);
     }
 
-    // /**
-    //  * Parse the FromEmail field to extract just the email address
-    //  * Handles formats like "Name <email@domain.com>" or plain "email@domain.com"
-    //  */
-    // public function getFromEmailAddress()
-    // {
-    //     if (!$this->FromEmail) {
-    //         return null;
-    //     }
+    /**
+     * Parse the FromEmail field to extract just the email address
+     * Handles formats like "Name <email@domain.com>" or plain "email@domain.com"
+     */
+    public function getFromEmailAddress()
+    {
+        if (!$this->FromEmail) {
+            return null;
+        }
 
-    //     // Match email in angle brackets: "Name <email@domain.com>"
-    //     if (preg_match('/.*<([^>]+)>/', $this->FromEmail, $matches)) {
-    //         return trim($matches[1]);
-    //     }
+        // Match email in angle brackets: "Name <email@domain.com>"
+        if (preg_match('/.*<([^>]+)>/', $this->FromEmail, $matches)) {
+            return trim($matches[1]);
+        }
 
-    //     // No angle brackets, assume it's just the email address
-    //     return trim($this->FromEmail);
-    // }
+        // No angle brackets, assume it's just the email address
+        return trim($this->FromEmail);
+    }
 
-    // /**
-    //  * Parse the FromEmail field to extract the display name
-    //  * Returns null if no name is provided (plain email format)
-    //  */
-    // public function getFromEmailName()
-    // {
-    //     if (!$this->FromEmail) {
-    //         return null;
-    //     }
+    /**
+     * Parse the FromEmail field to extract the display name
+     * Returns null if no name is provided (plain email format)
+     */
+    public function getFromEmailName()
+    {
+        if (!$this->FromEmail) {
+            return null;
+        }
 
-    //     // Match name before angle brackets: "Name <email@domain.com>"
-    //     if (preg_match('/^(.+)<[^>]+>$/', $this->FromEmail, $matches)) {
-    //         $name = trim($matches[1]);
-    //         // Remove surrounding quotes if present
-    //         $name = trim($name, '"\' ');
-    //         return $name ?: null;
-    //     }
+        // Match name before angle brackets: "Name <email@domain.com>"
+        if (preg_match('/^(.+)<[^>]+>$/', $this->FromEmail, $matches)) {
+            $name = trim($matches[1]);
+            // Remove surrounding quotes if present
+            $name = trim($name, '"\' ');
+            return $name ?: null;
+        }
 
-    //     // No angle brackets found, no separate name provided
-    //     return null;
-    // }
+        // No angle brackets found, no separate name provided
+        return null;
+    }
 
     public function canCreate($member = null, $context = [])
     {
