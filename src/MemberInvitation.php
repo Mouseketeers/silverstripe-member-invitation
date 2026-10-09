@@ -76,10 +76,10 @@ class MemberInvitation extends DataObject
         }
 
         $defaultEmailSubject = self::config()->get('default_email_subject');
-        $this->EmailSubject = ($defaultEmailSubject) ? $defaultEmailSubject : 'Invitation to join '.SiteConfig::current_site_config()->Title;
+        $this->EmailSubject = $defaultEmailSubject ?: 'Invitation to join '.SiteConfig::current_site_config()->Title;
 
         $defaultMessage = self::config()->get('default_message');
-        $this->Message = ($defaultMessage) ? $defaultMessage : 'You have been invited to join '.SiteConfig::current_site_config()->Title;
+        $this->Message = $defaultMessage ?: 'You have been invited to join '.SiteConfig::current_site_config()->Title;
 
         if($defaultGroups = self::config()->get('default_groups')) {
             $this->Groups = $defaultGroups;

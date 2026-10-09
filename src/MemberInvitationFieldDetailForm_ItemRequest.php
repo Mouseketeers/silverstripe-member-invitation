@@ -12,7 +12,7 @@ class MemberInvitationFieldDetailForm_ItemRequest extends GridFieldDetailForm_It
 		'doSendInvitation',
 		'ItemEditForm'
 	];
-	function ItemEditForm()
+	public function ItemEditForm()
 	{
 		$form = parent::ItemEditForm();
 		$formActions = $form->Actions();

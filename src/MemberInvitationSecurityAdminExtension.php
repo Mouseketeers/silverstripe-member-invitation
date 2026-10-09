@@ -22,7 +22,7 @@ class MemberInvitationSecurityAdminExtension extends Extension
 
         $invitationsField
             ->getConfig()
-            ->getComponentByType('SilverStripe\Forms\GridField\GridFieldDetailForm')
+            ->getComponentByType(\SilverStripe\Forms\GridField\GridFieldDetailForm::class)
             ->setItemRequestClass(MemberInvitationFieldDetailForm_ItemRequest::class);
 
         $invitationsField->setForm($form);

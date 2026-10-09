@@ -70,7 +70,7 @@ class MemberInvitationForm extends Form
 	            	_t('MemmberInvitation.SEND_INVITATION', 'Send Invitation')
 				)
 	        );
-			$requiredFields = RequiredFields::create(array('FirstName', 'Email', 'Groups'));			
+			$requiredFields = RequiredFields::create(['FirstName', 'Email', 'Groups']);			
 	    }
         else {
         	$actions = new FieldList();

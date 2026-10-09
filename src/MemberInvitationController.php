@@ -248,7 +248,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
         $tmpPage = SiteTree::create();
         $tmpPage->URLSegment = "invite";
         // Disable ID-based caching  of the log-in page by making it a random number
-        $tmpPage->ID = -1 * rand(1,10000000);
+        $tmpPage->ID = -1 * random_int(1,10000000);
         $controller = ContentController::create($tmpPage);
         $controller->setDataModel($this->model);
         $controller->init();
