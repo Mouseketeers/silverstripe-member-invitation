@@ -248,13 +248,13 @@ class MemberInvitation extends DataObject
         }
 
         if(!$this->ID) {
-            if (Member::get()->filter('Email', $this->Email)->first()) {
+            if (Member::get()->filter(['Email' => $this->Email])->first()) {
                 $valid->addError(
                     _t('MemberInvitation.MEMBER_ALREADY_EXISTS', 'An member with this e-mail is already registered.')
                 );
                 return $valid;
             }
-            if ($invite = self::get()->filter('Email', $this->Email)->first()) {
+            if ($invite = self::get()->filter(['Email' => $this->Email])->first()) {
                 $valid->addError(
                     _t('MemberInvitation.INVITE_EXISTS', 'An invitation with this e-mail already exists.')
                 );

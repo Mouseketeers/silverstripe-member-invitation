@@ -156,7 +156,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
         if (!$hash = $this->getRequest()->param('ID')) {
             return $this->forbiddenError();
         }
-        if ($invite = MemberInvitation::get()->filter('TempHash', $hash)->first()) {
+        if ($invite = MemberInvitation::get()->filter(['TempHash' => $hash])->first()) {
             if ($invite->getIsExpired()) {
                 return $this->redirect($this->Link('expired'));
             }
@@ -176,10 +176,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
     }
     public function saveInvite($data, Form $form)
     {
-        if (!$invite = MemberInvitation::get()->filter(
-            'TempHash',
-            $data['HashID']
-        )->first()) {
+        if (!$invite = MemberInvitation::get()->filter(['TempHash' => $data['HashID']])->first()) {
             return $this->notFoundError();
         }
         if ($form->validationResult()->isValid()) {

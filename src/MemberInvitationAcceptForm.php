@@ -22,7 +22,7 @@ class MemberInvitationAcceptForm extends Form
 	public function __construct($controller, $name) {
 
 		$hash = $controller->getRequest()->param('ID');
-		$invite = MemberInvitation::get()->filter('TempHash', $hash)->first();
+		$invite = MemberInvitation::get()->filter(['TempHash' => $hash])->first();
 
 		$firstName = ($invite) ? $invite->FirstName : '';
 		$surname = ($invite) ? $invite->Surname : '';
@@ -55,7 +55,7 @@ class MemberInvitationAcceptForm extends Form
 			FormAction::create('acceptInvite', _t('MemberInvitation.ACCEPTFORM_REGISTER', 'Register'))
 		);
 		
-		$required = new RequiredFields('FirstName');
+		$required = \SilverStripe\Forms\RequiredFields::create('FirstName');
 		
 		// Session::set('MemberInvitation.accepted', true);
 		
@@ -67,7 +67,7 @@ class MemberInvitationAcceptForm extends Form
     public function acceptInvite($data, Form $form)
     {
        
-        if (!$invite = MemberInvitation::get()->filter('TempHash', $data['HashID'])->first()) {
+        if (!$invite = MemberInvitation::get()->filter(['TempHash' => $data['HashID']])->first()) {
             return $this->notFoundError();
         }
         if ($form->validationResult()->isValid()) {

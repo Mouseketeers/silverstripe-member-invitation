@@ -40,7 +40,7 @@ class MemberInvitationForm extends Form
 				}
 			}
 			if($allowed_group_codes) {
-				$allowed_groups = Group::get()->filter('Code', $allowed_group_codes)->sort('Title');
+				$allowed_groups = Group::get()->filter(['Code' => $allowed_group_codes])->sort(['Title' => 'ASC']);
 			}	
 		}
         		
@@ -73,8 +73,8 @@ class MemberInvitationForm extends Form
 			$requiredFields = RequiredFields::create(['FirstName', 'Email', 'Groups']);			
 	    }
         else {
-        	$actions = new FieldList();
-        	$fields = new FieldList();
+        	$actions = \SilverStripe\Forms\FieldList::create();
+        	$fields = \SilverStripe\Forms\FieldList::create();
 			$this->setMessage(
                 _t(
                     'MemberInvitation.PERMISSION_FAILURE',

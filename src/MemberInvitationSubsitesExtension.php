@@ -20,10 +20,10 @@ class MemberInvitationSubsitesExtension extends DataExtension
 
     public function populateDefaults()
     {
-        if (!$this->owner->SubsiteID) {
-            $this->owner->SubsiteID = (int) Subsite::currentSubsiteID();
-            if (!$this->owner->SubsiteID) {
-                $this->owner->SubsiteID = 0;
+        if (!$this->getOwner()->SubsiteID) {
+            $this->getOwner()->SubsiteID = (int) Subsite::currentSubsiteID();
+            if (!$this->getOwner()->SubsiteID) {
+                $this->getOwner()->SubsiteID = 0;
             }
         }
     }
@@ -56,11 +56,11 @@ class MemberInvitationSubsitesExtension extends DataExtension
 
     public function getInvitationSiteURL()
     {
-        if (!$this->owner->SubsiteID) {
+        if (!$this->getOwner()->SubsiteID) {
             return null;
         }
 
-        $subsite = Subsite::get()->byID((int) $this->owner->SubsiteID);
+        $subsite = Subsite::get()->byID((int) $this->getOwner()->SubsiteID);
         if (!$subsite) {
             return null;
         }
@@ -75,11 +75,11 @@ class MemberInvitationSubsitesExtension extends DataExtension
 
     public function beforeSendInvitationEmail()
     {
-        if (!$this->owner->SubsiteID) {
+        if (!$this->getOwner()->SubsiteID) {
             return;
         }
 
-        $subsite = Subsite::get()->byID((int) $this->owner->SubsiteID);
+        $subsite = Subsite::get()->byID((int) $this->getOwner()->SubsiteID);
         if ($subsite && $subsite->Theme) {
             SSViewer::set_themes([$subsite->Theme]);
         }
