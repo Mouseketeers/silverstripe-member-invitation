@@ -9,7 +9,6 @@ use SilverStripe\Security\Security;
 use SilverStripe\SiteConfig\SiteConfig;
 use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Admin\SecurityAdmin;
-use SilverStripe\GraphQL\Controller;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\ListboxField;
 use SilverStripe\Control\Director;
@@ -24,6 +23,7 @@ use SilverStripe\Core\Injector\Injector;
 use SilverStripe\Core\Config\Config;
 use SilverStripe\View\SSViewer;
 use SilverStripe\Subsites\Model\Subsite;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 
 
 class MemberInvitation extends DataObject 
@@ -122,14 +122,7 @@ class MemberInvitation extends DataObject
 
     public function getEditLink()
     {
-        $admin = SecurityAdmin::singleton();
-        $fields = $admin->getEditForm()->Fields();
-        $grid = $fields->dataFieldByName('MemberInvitations');
-        return Controller::join_links(
-            $grid->Link("item"),
-            $this->ID,
-            "edit"
-        );
+        return SecurityAdmin::singleton()->getCMSEditLinkForManagedDataObject($this);
     }
 
     public function getTitle() 
@@ -292,7 +285,13 @@ class MemberInvitation extends DataObject
                     )
                 );
 
-            return $email->send();
+            try {
+                $email->send();
+            } catch (TransportExceptionInterface $e) {
+                return false;
+            }
+
+            return true;
         } finally {
             SSViewer::set_themes($originalThemes);
             Config::modify()->set(SSViewer::class, 'theme_enabled', $originalThemeEnabled);

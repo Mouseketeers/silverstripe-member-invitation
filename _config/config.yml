@@ -2,5 +2,9 @@
 Name: userinvitationconfig
 ---
 SilverStripe\Admin\SecurityAdmin:
+  managed_models:
+    invitations:
+      title: 'Invitations'
+      dataClass: Mouseketeers\SilverstripeMemberInvitation\MemberInvitation
   extensions:
     - Mouseketeers\SilverstripeMemberInvitation\MemberInvitationSecurityAdminExtension

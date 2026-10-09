@@ -34,9 +34,11 @@ class MemberInvitationFieldDetailForm_ItemRequest extends GridFieldDetailForm_It
         // send invitation
         $invite = MemberInvitation::create();
         $form->saveInto($invite);
-        $invite->sendInvitation();
-        
-        $form->sessionMessage('Invitation has been sent', 'good');
+        if ($invite->sendInvitation()) {
+            $form->sessionMessage('Invitation has been sent', 'good');
+        } else {
+            $form->sessionMessage('The invitation could not be sent', 'bad');
+        }
 
         return $this->redirectAfterSave(false);
 

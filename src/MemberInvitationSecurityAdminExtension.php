@@ -2,30 +2,23 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
-use SilverStripe\Forms\GridField\GridFieldDetailForm;
 use SilverStripe\Core\Extension;
-use SilverStripe\Forms\GridField\GridField;
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
-use Mouseketeers\SilverstripeMemberInvitation\MemberInvitationFieldDetailForm_ItemRequest;
+use SilverStripe\Forms\GridField\GridFieldConfig;
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
 
-
-class MemberInvitationSecurityAdminExtension extends Extension 
+/**
+ * Invitations are a managed model on SecurityAdmin (see _config/config.yml).
+ * This hooks in the item request class that adds the "Send Invitation" action.
+ */
+class MemberInvitationSecurityAdminExtension extends Extension
 {
-    public function updateEditForm($form) {
-        $fields = $form->Fields();
-        $invitationsTab = $fields->findOrMakeTab('Root.Invitations', 'Invitations');
-        $invitationsField = GridField::create('MemberInvitations',
-            '',
-            MemberInvitation::get(),
-            GridFieldConfig_RecordEditor::create()
-        );
-        $invitationsTab->push($invitationsField);
-
-        $invitationsField
-            ->getConfig()
+    public function updateGridFieldConfig(GridFieldConfig $config): void
+    {
+        if ($this->getOwner()->getModelClass() !== MemberInvitation::class) {
+            return;
+        }
+        $config
             ->getComponentByType(GridFieldDetailForm::class)
-            ->setItemRequestClass(MemberInvitationFieldDetailForm_ItemRequest::class);
-
-        $invitationsField->setForm($form);
+            ?->setItemRequestClass(MemberInvitationFieldDetailForm_ItemRequest::class);
     }
 }
