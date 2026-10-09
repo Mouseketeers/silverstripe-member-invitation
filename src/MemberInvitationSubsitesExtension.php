@@ -6,6 +6,7 @@ use SilverStripe\Core\Extension;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
 use SilverStripe\Subsites\Model\Subsite;
+use SilverStripe\Subsites\State\SubsiteState;
 use SilverStripe\View\SSViewer;
 
 class MemberInvitationSubsitesExtension extends Extension
@@ -21,7 +22,7 @@ class MemberInvitationSubsitesExtension extends Extension
     public function populateDefaults()
     {
         if (!$this->getOwner()->SubsiteID) {
-            $this->getOwner()->SubsiteID = (int) Subsite::currentSubsiteID();
+            $this->getOwner()->SubsiteID = (int) SubsiteState::singleton()->getSubsiteId();
             if (!$this->getOwner()->SubsiteID) {
                 $this->getOwner()->SubsiteID = 0;
             }
