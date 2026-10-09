@@ -19,7 +19,7 @@ class MemberInvitationSubsitesExtension extends Extension
         'SubsiteID' => 0
     ];
 
-    public function populateDefaults()
+    public function onAfterPopulateDefaults()
     {
         if (!$this->getOwner()->SubsiteID) {
             $this->getOwner()->SubsiteID = (int) SubsiteState::singleton()->getSubsiteId();

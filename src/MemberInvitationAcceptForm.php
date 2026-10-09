@@ -3,6 +3,8 @@
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
 
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
+use SilverStripe\Core\Validation\ValidationException;
 use Mouseketeers\SilverstripeMemberInvitation\MemberInvitation;
 use SilverStripe\Forms\Form;
 use SilverStripe\Forms\FieldList;
@@ -10,9 +12,6 @@ use SilverStripe\Forms\HiddenField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\ConfirmedPasswordField;
 use SilverStripe\Forms\FormAction;
-use SilverStripe\Forms\RequiredFields;
-use SilverStripe\ORM\ValidationException;
-use SilverStripe\Core\Convert;
 
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Member;
@@ -55,7 +54,7 @@ class MemberInvitationAcceptForm extends Form
 			FormAction::create('acceptInvite', _t('MemberInvitation.ACCEPTFORM_REGISTER', 'Register'))
 		);
 		
-		$required = RequiredFields::create('FirstName');
+		$required = RequiredFieldsValidator::create('FirstName');
 		
 		// Session::set('MemberInvitation.accepted', true);
 		
@@ -70,7 +69,7 @@ class MemberInvitationAcceptForm extends Form
         if (!$invite = MemberInvitation::get()->filter(['TempHash' => $data['HashID']])->first()) {
             return $this->getController()->httpError(404, 'Invitation not found');
         }
-        if ($form->validationResult()->isValid()) {
+        if ($form->validate()->isValid()) {
 
             $member = Member::create(['Email' => $invite->Email]);
             $form->saveInto($member);

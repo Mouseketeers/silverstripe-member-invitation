@@ -2,6 +2,7 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
+use SilverStripe\Core\Validation\ValidationException;
 use SilverStripe\Control\Controller;
 use SilverStripe\Security\PermissionProvider;
 use SilverStripe\Security\Permission;
@@ -9,8 +10,6 @@ use SilverStripe\Security\Security;
 use SilverStripe\Forms\Form;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Member;
-use SilverStripe\ORM\ValidationException;
-use SilverStripe\Core\Convert;
 use SilverStripe\Core\Injector\Injector;
 use SilverStripe\CMS\Model\SiteTree;
 use SilverStripe\CMS\Controllers\ContentController;
@@ -102,7 +101,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
             return $this->redirectBack();
         }
 
-        if (!$form->validationResult()->isValid()) {
+        if (!$form->validate()->isValid()) {
             $form->sessionMessage(
                 _t(
                     'MemberInvitation.SENT_INVITATION_VALIDATION_FAILED',
@@ -179,7 +178,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
         if (!$invite = MemberInvitation::get()->filter(['TempHash' => $data['HashID']])->first()) {
             return $this->notFoundError();
         }
-        if ($form->validationResult()->isValid()) {
+        if ($form->validate()->isValid()) {
             $member = Member::create(['Email' => $invite->Email]);
             $form->saveInto($member);
             try {

@@ -2,12 +2,13 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
+use SilverStripe\Model\ArrayData;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Security;
 use SilverStripe\SiteConfig\SiteConfig;
-use SilverStripe\Forms\RequiredFields;
 use SilverStripe\Admin\SecurityAdmin;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\ListboxField;
@@ -15,7 +16,6 @@ use SilverStripe\Control\Director;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\HiddenField;
 use SilverStripe\Control\Email\Email;
-use SilverStripe\View\ArrayData;
 use SilverStripe\Security\RandomGenerator;
 use SilverStripe\ORM\FieldType\DBDatetime;
 use SilverStripe\Security\Permission;
@@ -106,7 +106,7 @@ class MemberInvitation extends DataObject
     }
     public function getCMSValidator()
     {
-        $requiredFields = RequiredFields::create(
+        $requiredFields = RequiredFieldsValidator::create(
             [
                 'Email',
                 'FromEmail',
@@ -225,7 +225,7 @@ class MemberInvitation extends DataObject
         return $fields;
     }
 
-    public function validate() 
+    public function validate(): \SilverStripe\Core\Validation\ValidationResult 
     {
         $valid = parent::validate();
 
@@ -286,7 +286,7 @@ class MemberInvitation extends DataObject
 
             try {
                 $email->send();
-            } catch (TransportExceptionInterface $e) {
+            } catch (TransportExceptionInterface) {
                 return false;
             }
 

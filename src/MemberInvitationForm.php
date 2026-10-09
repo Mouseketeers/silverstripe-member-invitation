@@ -2,6 +2,7 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
+use SilverStripe\Forms\Validation\RequiredFieldsValidator;
 use SilverStripe\Forms\Form;
 use SilverStripe\Security\Group;
 use SilverStripe\Security\Security;
@@ -10,7 +11,6 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\FormAction;
-use SilverStripe\Forms\RequiredFields;
 
 class MemberInvitationForm extends Form 
 {
@@ -69,7 +69,7 @@ class MemberInvitationForm extends Form
 	            	_t('MemmberInvitation.SEND_INVITATION', 'Send Invitation')
 				)
 	        );
-			$requiredFields = RequiredFields::create(['FirstName', 'Email', 'Groups']);			
+			$requiredFields = RequiredFieldsValidator::create(['FirstName', 'Email', 'Groups']);			
 	    }
         else {
         	$actions = FieldList::create();
