@@ -48,7 +48,7 @@ class MemberInvitationSubsitesExtension extends Extension
         );
 
         if ($fields->dataFieldByName('Groups')) {
-            $fields->insertAfter($subsiteField, 'Groups');
+            $fields->insertAfter('Groups', $subsiteField);
             return;
         }
 

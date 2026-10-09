@@ -183,7 +183,7 @@ class MemberInvitation extends DataObject
             );
 
             if ($fields->dataFieldByName('Groups')) {
-                $fields->insertAfter($subsiteField, 'Groups');
+                $fields->insertAfter('Groups', $subsiteField);
             } else {
                 $fields->addFieldToTab('Root.Main', $subsiteField);
             }
@@ -192,24 +192,23 @@ class MemberInvitation extends DataObject
         if($this->TempHash) {
             $siteURL = $this->getInvitationSiteURL();
             $fields->insertBefore(
+                'DateSent',
                 ReadonlyField::create(
                     'AcceptLink',
                     'Accept Link',
                     $siteURL.'invite/accept/'.$this->TempHash
                 )
                 ->setRightTitle('Link sent in invitation. You can also copy this and send it in an email of your own (e.g. if a person complains that they haven\'t received the invitation).')
-               ,
-               'DateSent'
             );            
         }
 
         $fields->insertBefore(
+            'DateSent',
             ReadonlyField::create(
                 'InvitedByReadOnlyField',
                 'Invited By',
                 $this->InvitedBy()->getTitle()
-            ),
-            'DateSent'
+            )
         );        
 
         $fields->dataFieldByName('DateSent')

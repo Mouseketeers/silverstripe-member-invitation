@@ -43,12 +43,12 @@ class MemberInvitationAcceptForm extends Form
 		);
 		if($surname) {
 			$fields->insertAfter(
+				'FirstName', 
 				TextField::create(
 					'Surname',
 					_t('MemberInvitation.ACCEPTFORM_SURNAME', 'Surname'),
 					$surname
-				), 
-				'FirstName'
+				)
 			);
 		};
 		$actions = FieldList::create(
