@@ -85,7 +85,7 @@ class MemberInvitation extends DataObject
             $this->Groups = $defaultGroups;
         }
 
-        parent::populateDefaults();
+        return parent::populateDefaults();
 
     }
     public function setEmailSubject($emailSubject)

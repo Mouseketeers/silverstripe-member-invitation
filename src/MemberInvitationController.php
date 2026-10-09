@@ -203,7 +203,7 @@ class MemberInvitationController extends Controller implements PermissionProvide
             return $this->redirect($this->Link('success'));
         } else {
             $form->sessionMessage(
-                Convert::array2json($form->getValidator()->getErrors()),
+                json_encode($form->getValidator()->getErrors()),
                 'bad'
             );
             return $this->redirectBack();

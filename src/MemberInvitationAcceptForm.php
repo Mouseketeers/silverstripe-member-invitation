@@ -68,7 +68,7 @@ class MemberInvitationAcceptForm extends Form
     {
        
         if (!$invite = MemberInvitation::get()->filter(['TempHash' => $data['HashID']])->first()) {
-            return $this->notFoundError();
+            return $this->getController()->httpError(404, 'Invitation not found');
         }
         if ($form->validationResult()->isValid()) {
 
@@ -99,7 +99,7 @@ class MemberInvitationAcceptForm extends Form
             return $this->controller->redirect($this->controller->Link('success'));
         } else {
             $form->sessionMessage(
-                Convert::array2json($form->getValidator()->getErrors()),
+                json_encode($form->getValidator()->getErrors()),
                 'bad'
             );
             return $this->controller->redirectBack();
