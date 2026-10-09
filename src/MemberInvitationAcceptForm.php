@@ -55,7 +55,7 @@ class MemberInvitationAcceptForm extends Form
 			FormAction::create('acceptInvite', _t('MemberInvitation.ACCEPTFORM_REGISTER', 'Register'))
 		);
 		
-		$required = \SilverStripe\Forms\RequiredFields::create('FirstName');
+		$required = RequiredFields::create('FirstName');
 		
 		// Session::set('MemberInvitation.accepted', true);
 		

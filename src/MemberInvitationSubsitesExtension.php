@@ -2,13 +2,13 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
+use SilverStripe\Core\Extension;
 use SilverStripe\Forms\DropdownField;
 use SilverStripe\Forms\FieldList;
-use SilverStripe\ORM\DataExtension;
 use SilverStripe\Subsites\Model\Subsite;
 use SilverStripe\View\SSViewer;
 
-class MemberInvitationSubsitesExtension extends DataExtension
+class MemberInvitationSubsitesExtension extends Extension
 {
     private static $has_one = [
         'Subsite' => Subsite::class

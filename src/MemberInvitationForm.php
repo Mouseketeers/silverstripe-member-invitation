@@ -11,7 +11,6 @@ use SilverStripe\Forms\EmailField;
 use SilverStripe\Forms\OptionsetField;
 use SilverStripe\Forms\FormAction;
 use SilverStripe\Forms\RequiredFields;
-use SilverStripe\Forms\ListboxField;
 
 class MemberInvitationForm extends Form 
 {
@@ -73,8 +72,8 @@ class MemberInvitationForm extends Form
 			$requiredFields = RequiredFields::create(['FirstName', 'Email', 'Groups']);			
 	    }
         else {
-        	$actions = \SilverStripe\Forms\FieldList::create();
-        	$fields = \SilverStripe\Forms\FieldList::create();
+        	$actions = FieldList::create();
+        	$fields = FieldList::create();
 			$this->setMessage(
                 _t(
                     'MemberInvitation.PERMISSION_FAILURE',

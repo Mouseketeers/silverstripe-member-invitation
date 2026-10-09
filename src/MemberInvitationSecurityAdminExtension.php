@@ -2,6 +2,7 @@
 
 namespace Mouseketeers\SilverstripeMemberInvitation;
 
+use SilverStripe\Forms\GridField\GridFieldDetailForm;
 use SilverStripe\Core\Extension;
 use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
@@ -22,7 +23,7 @@ class MemberInvitationSecurityAdminExtension extends Extension
 
         $invitationsField
             ->getConfig()
-            ->getComponentByType(\SilverStripe\Forms\GridField\GridFieldDetailForm::class)
+            ->getComponentByType(GridFieldDetailForm::class)
             ->setItemRequestClass(MemberInvitationFieldDetailForm_ItemRequest::class);
 
         $invitationsField->setForm($form);
